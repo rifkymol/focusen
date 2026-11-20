@@ -1,6 +1,7 @@
 {
   "name": "focusen",
   "description": "Give every tab a deadline. Finish it, or let it close.",
+  "license": "MIT",
   "private": true,
   "version": "0.1.0",
   "type": "module",

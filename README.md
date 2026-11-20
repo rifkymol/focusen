@@ -7,7 +7,7 @@
 **Give every tab a deadline. Finish it, or let it close.**
 
 A small browser extension for people with 47 tabs open "to read later."<br />
-Chrome · Edge · Firefox · Manifest V3 · no accounts, no tracking
+Chrome · Edge · Firefox · Manifest V3 · no accounts, no tracking · MIT licensed
 
 </div>
 
@@ -105,3 +105,7 @@ Issues and pull requests are welcome. Good places to start:
 - **Real-world checks.** If YouTube changes its player and video length detection breaks, an issue with the video URL helps a lot.
 
 Before opening a PR, please run `npm run compile`, `npm test` and `npm run e2e`.
+
+## License
+
+[MIT](LICENSE) © 2026 Rifky
