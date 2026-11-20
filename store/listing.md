@@ -40,6 +40,7 @@ BUILT TO BE FORGIVING
 • If your computer slept through a deadline, you get a fresh warning instead of losing the tab.
 • Tracked tabs are found again after a browser restart.
 • Keep +1h works three times per tab, so nothing can be put off forever.
+• Optional: track every new tab automatically, up to your limit of up to 10. Stop tracking any tab with one click, and it stays open.
 
 PRIVATE BY DESIGN
 Everything stays in your browser. Focusen has no account, no servers and no analytics, and it never sends your data anywhere. It only reads the address and title of tabs you choose to track, and the length of the YouTube video you're watching.

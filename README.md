@@ -40,6 +40,7 @@ It turns out most of those tabs didn't matter. The ones that did, you finish.
 - **Six slots.** A short list is the point. When it's full, Focusen asks you to finish or drop something first.
 - **Never closes what you're using.** A tab that's playing audio or is fullscreen gets another warning instead of being closed.
 - **Sleep and restarts are safe.** If your laptop slept through a deadline, you get a fresh warning and the tab isn't closed instantly. After a browser restart, tracked tabs are found again by their address.
+- **Or track everything.** Turn on *Track every new tab automatically* in Settings and every new tab gets a timer, up to your tab limit (up to 10). When the list is full, the new tab shows a card where you pick a tracked tab to finish or drop, and the new one takes its place. The × next to Done stops tracking a tab without closing it.
 - **Keep +1h is limited.** You can extend a tab 3 times; the timer can't be pushed back forever.
 
 ## Privacy

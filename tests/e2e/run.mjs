@@ -172,6 +172,88 @@ r = await msg({ type: 'track', tabId: await tabIdOf('rust-ownership'), mode: 60,
 s = await msg({ type: 'state' });
 check('drop one to make room, new tab tracked', r.ok && s.tracked.some((t) => t.url.includes('rust-ownership')) && !s.tracked.some((t) => t.url.includes('post-3')));
 
+// 9b. Auto-track: new tabs are tracked up to the limit; Stop tracking keeps the tab open.
+const setSettings = (fields) => ctl.evaluate(async (f) => {
+  const { settings } = await chrome.storage.local.get('settings');
+  await chrome.storage.local.set({ settings: { ...settings, ...f } });
+}, fields);
+const tracked = async () => (await msg({ type: 'state' })).tracked;
+// Tabs restored in the first 15 s of a browser session are not "new": wait that out.
+const booted = await ctl.evaluate(async () => (await chrome.storage.session.get('booted')).booted);
+await sleep(Math.max(0, booted + 15_500 - (await ctl.evaluate(() => Date.now()))));
+await setSettings({ autoTrack: true, maxSlots: 7 });
+const a1 = await ctx.newPage();
+await a1.goto('https://auto.site.test/first');
+await sleep(2500);
+let autoRec = (await tracked()).find((t) => t.url.includes('auto.site.test/first'));
+check('auto-track: a new tab is tracked', !!autoRec, String((await tracked()).length));
+const a2 = await ctx.newPage();
+// YouTube: Focusen has access there, so the in-page card can show (other sites need the opt-in).
+await a2.goto('https://www.youtube.com/watch?v=full2');
+await sleep(2500);
+check('auto-track: list full, next new tab is not tracked', !(await tracked()).some((t) => t.url.includes('v=full2')));
+const a2Tab = await tabIdOf('v=full2');
+const cardOn = async (p) => (await p.$('focusen-warning')) !== null;
+check('list full: the new tab shows the "Your list is full" card', await a2.waitForSelector('focusen-warning', { state: 'attached', timeout: 6000 }).then(() => true, () => false));
+await sleep(400);
+await a2.screenshot({ path: path.join(out, 'overlay-full.png') });
+check('list full: the refused tab gets a "full" badge', (await sw.evaluate((id) => chrome.action.getBadgeText({ tabId: id }), a2Tab)) === 'full');
+// Opening Focusen on that tab shows the "Your list is full" picker (current tab = the refused one).
+await ctx.addInitScript((mark) => {
+  if (!location.pathname.endsWith('popup.html')) return;
+  const q = chrome.tabs.query.bind(chrome.tabs);
+  chrome.tabs.query = (o) => (o && o.active ? q({}).then((ts) => ts.filter((t) => t.url.includes(mark))) : q(o));
+}, 'v=full2');
+const fullPop = await ctx.newPage();
+fullPop.on('pageerror', (e) => errs.push(String(e)));
+await fullPop.setViewportSize({ width: 360, height: 600 });
+await fullPop.goto(`chrome-extension://${extId}/popup.html`);
+const picker = await fullPop.waitForSelector('.full-header', { timeout: 4000 }).then(() => true, () => false);
+check('list full: Focusen on that tab shows the "Your list is full" picker', picker);
+await fullPop.screenshot({ path: path.join(out, 'popup-full.png') });
+if (picker) await fullPop.getByText('Leave it untracked').click();
+await sleep(500);
+check('Leave it untracked: badge and card cleared, picker not offered again',
+  (await sw.evaluate((id) => chrome.action.getBadgeText({ tabId: id }), a2Tab)) !== 'full' && !(await cardOn(a2)) &&
+  !((await ctl.evaluate(async () => (await chrome.storage.session.get('autoFull')).autoFull)) ?? []).includes(a2Tab));
+await fullPop.close();
+r = await msg({ type: 'untrack', id: autoRec.id });
+await sleep(500);
+d = await db();
+check('Stop tracking: record removed, tab still open, nothing logged',
+  r.ok && !d.tracked[autoRec.id] && (await tabIdOf('auto.site.test/first')) !== undefined && !d.log.some((e) => e.url.includes('auto.site.test/first')));
+await a1.goto('https://auto.site.test/first-next');
+await sleep(2500);
+check('Stop tracking: navigating that tab does not re-track it', !(await tracked()).some((t) => t.url.includes('auto.site.test/first')));
+// The card's own buttons: pick the first tab, Mark done → this new tab takes its place.
+await setSettings({ maxSlots: 6 });
+const doneBefore = (await db()).log.filter((e) => e.kind === 'done').length;
+const a3 = await ctx.newPage();
+await a3.goto('https://www.youtube.com/watch?v=full3');
+await a3.waitForSelector('focusen-warning', { state: 'attached', timeout: 8000 }).catch(() => undefined);
+await sleep(400);
+const shown = Math.min(4, (await tracked()).length);
+for (let i = 0; i < shown; i++) await a3.keyboard.press('Tab'); // focus starts on the first pick; next stops: other picks, then Mark done
+await a3.keyboard.press('Enter');
+await sleep(2500);
+d = await db();
+check('card: Mark done frees a slot and tracks the new tab',
+  (await tracked()).some((t) => t.url.includes('v=full3')) && d.log.filter((e) => e.kind === 'done').length === doneBefore + 1 && !(await cardOn(a3)));
+await msg({ type: 'untrack', id: (await tracked()).find((t) => t.url.includes('v=full3')).id });
+await a3.close();
+await setSettings({ maxSlots: 7 });
+const own = await ctl.evaluate(async () => (await chrome.tabs.query({})).length);
+const e2 = d.log.find((e) => e.kind === 'done');
+r = await msg({ type: 'reopen', logId: e2.id }); // Undo of a Done: restores its own record, must not double-track
+await sleep(2500);
+const dupes = (await tracked()).filter((t) => t.url === e2.url).length;
+check('tabs Focusen opens itself are not auto-tracked twice', r.ok && dupes === 1 && (await ctl.evaluate(async () => (await chrome.tabs.query({})).length)) === own + 1, `copies ${dupes}`);
+await msg({ type: 'untrack', id: (await tracked()).find((t) => t.url === e2.url).id });
+await setSettings({ autoTrack: false, maxSlots: 6 });
+await a1.close();
+await a2.close();
+for (const p of ctx.pages()) if (p.url() === e2.url) await p.close();
+
 // 10. Popup screenshots (light + dark).
 for (const scheme of ['light', 'dark']) {
   const pop = await ctx.newPage();

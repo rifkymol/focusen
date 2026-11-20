@@ -40,6 +40,20 @@ function flash(text: string) {
     };
   }
 
+  const auto = $<HTMLButtonElement>('autoTrack');
+  auto.setAttribute('aria-checked', String(s.autoTrack));
+  auto.onclick = async () => {
+    const on = auto.getAttribute('aria-checked') !== 'true';
+    // Ask first, while the click still counts as a user gesture: the "list is full" card
+    // needs access to the site of the new tab. Declining still turns auto-track on.
+    const access = on ? await browser.permissions.request({ origins: ['<all_urls>'] }).catch(() => false) : true;
+    const cur = await settings();
+    await browser.storage.local.set({ settings: { ...cur, autoTrack: on } });
+    auto.setAttribute('aria-checked', String(on));
+    await sync();
+    flash(!on ? 'Saved' : access ? `New tabs will be tracked, up to ${cur.maxSlots}` : 'On. Without site access, a full list shows a notification instead of a card');
+  };
+
   const toggle = $<HTMLButtonElement>('allSites');
   const perm = { origins: ['<all_urls>'] };
   const sync = async () => toggle.setAttribute('aria-checked', String(await browser.permissions.contains(perm)));

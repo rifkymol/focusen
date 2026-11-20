@@ -180,8 +180,12 @@ function renderActive(): HTMLElement[] {
         ),
         h('div', { class: 'bar-track' }, h('div', { class: `bar ${tn}`, style: `width:${pct}%` })),
       ),
-      h('button', { class: 'done-btn', 'data-key': `done-${t.id}`, 'aria-label': `Mark “${t.title}” done`, onclick: () => act({ type: 'done', id: t.id }) },
-        icon('check', 13), 'Done'),
+      h('div', { class: 'acts' },
+        h('button', { class: 'done-btn', 'data-key': `done-${t.id}`, 'aria-label': `Mark “${t.title}” done`, onclick: () => act({ type: 'done', id: t.id }) },
+          icon('check', 13), 'Done'),
+        h('button', { class: 'untrack-btn', 'data-key': `untrack-${t.id}`, 'aria-label': `Stop tracking “${t.title}”`, title: 'Stop tracking (the tab stays open)', onclick: () => act({ type: 'untrack', id: t.id }) },
+          icon('x', 14)),
+      ),
     ));
   }
   return [list, renderFooter(), renderHint()];
@@ -238,7 +242,9 @@ function menuKeys(e: KeyboardEvent) {
 function renderHint() {
   const def = timerLabel(st!.settings.defaultMinutes, true);
   return h('div', { class: 'hint' }, icon('info', 12),
-    h('span', {}, `Auto: YouTube gets the video length + 10 min (max 1 day). Others get ${def}.`));
+    h('span', {}, st!.settings.autoTrack
+      ? `New tabs are tracked automatically. Auto: YouTube gets the video length + 10 min, others ${def}.`
+      : `Auto: YouTube gets the video length + 10 min (max 1 day). Others get ${def}.`));
 }
 
 function groupByDay(entries: LogEntry[], now: number) {
@@ -362,7 +368,7 @@ function renderFull(): HTMLElement[] {
         h('button', { class: 'primary', 'data-key': 'full-done', onclick: () => replaceAndTrack('done') }, icon('check', 14), 'Mark done'),
         h('button', { class: 'drop', onclick: () => replaceAndTrack('drop') }, icon('trash', 14), 'Drop it'),
       ),
-      h('button', { class: 'cancel', onclick: () => { full = null; render(); } }, 'Leave it untracked'),
+      h('button', { class: 'cancel', onclick: () => void leaveUntracked() }, 'Leave it untracked'),
     ),
   ];
 }
@@ -399,6 +405,22 @@ async function replaceAndTrack(action: 'done' | 'drop') {
   await refresh();
 }
 
+/** Close the picker; an auto-track refusal is answered, so drop its badge and stop asking. */
+async function leaveUntracked() {
+  const tabId = full?.tabId;
+  full = null;
+  render();
+  if (tabId === undefined) return;
+  const s = await browser.storage.session.get('autoFull').catch(() => ({} as Record<string, unknown>));
+  const ids = (s.autoFull as number[] | undefined) ?? [];
+  if (ids.includes(tabId)) {
+    await browser.storage.session.set({ autoFull: ids.filter((x) => x !== tabId) });
+    await browser.action.setBadgeText({ tabId, text: '' }).catch(() => undefined);
+    await browser.action.setTitle({ tabId, title: 'Focusen' }).catch(() => undefined);
+    await browser.tabs.sendMessage(tabId, { type: 'overlay:hide' }).catch(() => undefined);
+  }
+}
+
 async function focusTab(t: Tracked) {
   await browser.tabs.update(t.tabId, { active: true }).catch(() => undefined);
   await browser.windows.update(t.windowId, { focused: true }).catch(() => undefined);
@@ -407,18 +429,26 @@ async function focusTab(t: Tracked) {
 
 // ───────── boot ─────────
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && full) { full = null; render(); }
+  if (e.key === 'Escape' && full) void leaveUntracked();
 });
 browser.storage.onChanged.addListener((_c, area) => { if (area === 'local') void refresh(); });
 setInterval(render, 15_000);
 
 (async () => {
-  const s = await browser.storage.session.get('pendingTrack').catch(() => ({} as Record<string, unknown>));
-  const pending = s.pendingTrack as number | undefined;
-  if (pending !== undefined) {
-    await browser.storage.session.remove('pendingTrack');
-    const tab = await browser.tabs.get(pending).catch(() => null);
-    if (tab) full = { tabId: pending, title: tab.title || hostOf(tab.url ?? '') };
-  }
+  const s = await browser.storage.session.get(['pendingTrack', 'autoFull']).catch(() => ({} as Record<string, unknown>));
+  let pending = s.pendingTrack as number | undefined;
+  if (pending !== undefined) await browser.storage.session.remove('pendingTrack');
   await refresh();
+  // A tab auto-track turned away (list full): opening Focusen on it brings the picker back.
+  // refresh() sets these; TypeScript can't see that through the await.
+  const cur = current as { tabId: number } | null;
+  const state = st as PopupState | null;
+  if (pending === undefined && cur && ((s.autoFull as number[] | undefined) ?? []).includes(cur.tabId)) pending = cur.tabId;
+  if (pending !== undefined && !state?.tracked.some((t) => t.tabId === pending && !t.orphanSince)) {
+    const tab = await browser.tabs.get(pending).catch(() => null);
+    if (tab) {
+      full = { tabId: pending, title: tab.title || hostOf(tab.url ?? '') };
+      render();
+    }
+  }
 })();

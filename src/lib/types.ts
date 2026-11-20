@@ -77,6 +77,8 @@ export interface Settings {
   lastMode: TimerMode;
   /** Expired entries are deleted after this many days. */
   expiredKeepDays: number;
+  /** Track every new tab the user opens, up to maxSlots. */
+  autoTrack: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -86,6 +88,7 @@ export const DEFAULT_SETTINGS: Settings = {
   maxSnoozes: 3,
   lastMode: 'auto',
   expiredKeepDays: 7,
+  autoTrack: false,
 };
 
 /** Messages between popup / content scripts / overlay and the background. */
@@ -94,6 +97,9 @@ export type Msg =
   | { type: 'track'; tabId: number; mode: TimerMode; replace?: { id: string; action: 'done' | 'drop' } }
   | { type: 'done'; id?: string; tabId?: number }
   | { type: 'keep'; id?: string; tabId?: number }
+  | { type: 'untrack'; id?: string; tabId?: number }
+  /** From the in-page "list is full" card: free a slot for this tab, or leave it untracked. */
+  | { type: 'fullChoice'; replace?: { id: string; action: 'done' | 'drop' } }
   | { type: 'reopen'; logId: string }
   | { type: 'openUrl'; url: string }
   | { type: 'clearLog'; kind: 'done' | 'expired' }
