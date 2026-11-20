@@ -23,4 +23,7 @@ for (const size of [16, 32, 48, 96, 128]) {
   const png = new Resvg(svg(size), { fitTo: { mode: 'width', value: size } }).render().asPng();
   writeFileSync(`public/icon/${size}.png`, png);
 }
+// Edge Add-ons store logo.
+mkdirSync('store', { recursive: true });
+writeFileSync('store/logo-300.png', new Resvg(svg(300), { fitTo: { mode: 'width', value: 300 } }).render().asPng());
 console.log('icons written');
