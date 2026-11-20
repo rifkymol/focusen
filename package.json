@@ -1,0 +1,31 @@
+{
+  "name": "focusen",
+  "description": "Give every tab a deadline. Finish it, or let it close.",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "test": "vitest run",
+    "icons": "node scripts/make-icons.mjs",
+    "postinstall": "wxt prepare",
+    "e2e": "wxt build && node tests/e2e/run.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55",
+    "@resvg/resvg-js": "^2.6.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1",
+    "wxt": "^0.21.5"
+  },
+  "dependencies": {
+    "@fontsource-variable/manrope": "^5.3.0",
+    "lucide": "^1.76.0"
+  }
+}

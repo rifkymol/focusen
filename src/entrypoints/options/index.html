@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Focusen settings</title>
+    <meta name="manifest.open_in_tab" content="true" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="head">
+        <span class="mark" id="mark"></span>
+        <div>
+          <h1>Focusen</h1>
+          <p class="sub">Give a tab a deadline. Finish it, or let it go.</p>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>Timers</h2>
+        <label class="field">
+          <span><strong>Default timer</strong><small>Used by “Auto” for pages that aren’t YouTube videos.</small></span>
+          <select id="defaultMinutes"></select>
+        </label>
+        <label class="field">
+          <span><strong>Tracked tab limit</strong><small>A short list is the point. When it’s full, finish or drop one first.</small></span>
+          <select id="maxSlots"></select>
+        </label>
+        <label class="field">
+          <span><strong>Warning before closing</strong><small>How long you have to hit Done or Keep.</small></span>
+          <select id="warnMinutes"></select>
+        </label>
+        <label class="field">
+          <span><strong>“Keep +1h” per tab</strong><small>Extensions allowed before the tab must go.</small></span>
+          <select id="maxSnoozes"></select>
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Warnings</h2>
+        <div class="field">
+          <span><strong>In-page warning on every site</strong><small>YouTube always gets the in-page warning. Elsewhere Focusen uses a system notification unless you allow this. Needs access to the sites you track.</small></span>
+          <button class="toggle" id="allSites" role="switch" aria-checked="false"><span></span></button>
+        </div>
+        <div class="field">
+          <span><strong>Keyboard shortcuts</strong><small id="shortcuts">Track: Alt+Shift+K · Done: Alt+Shift+D · Open: Alt+Shift+F</small></span>
+          <button class="btn" id="editShortcuts">Change</button>
+        </div>
+      </section>
+
+      <section class="card note">
+        <h2>Privacy</h2>
+        <p>Everything stays in this browser. Focusen reads a tracked tab’s address and title to show it in your list and find it again after a restart, and reads the length of the YouTube video you’re watching from the page itself. Nothing is sent anywhere — no accounts, no analytics, no servers.</p>
+      </section>
+      <p class="saved" id="saved" aria-live="polite"></p>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
