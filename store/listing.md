@@ -43,7 +43,7 @@ BUILT TO BE FORGIVING
 • Optional: track every new tab automatically, up to your limit of up to 10. Stop tracking any tab with one click, and it stays open.
 
 PRIVATE BY DESIGN
-Everything stays in your browser. Focusen has no account, no servers and no analytics, and it never sends your data anywhere. It only reads the address and title of tabs you choose to track, and the length of the YouTube video you're watching.
+Everything stays in your browser. Focusen has no account, no servers and no analytics, and it never sends your data anywhere. It only reads the address and title of tabs you track (or, with auto-track on, the new tabs you open), and the length of the YouTube video you're watching.
 
 Light and dark themes. Keyboard shortcuts: Alt+Shift+K to track, Alt+Shift+D to mark done, Alt+Shift+F to open.
 
@@ -72,6 +72,7 @@ How to test:
 2. About 5 minutes before the deadline a card appears on the page with "Done" and "Keep +1h" (on non-YouTube sites a system notification is shown instead, unless in-page warnings are enabled in Settings).
 3. When the timer ends the tab closes and appears in the popup under "Expired", where "Reopen with new timer" brings it back once.
 4. On a YouTube video, the "Auto" timer is the video's length plus 10 minutes.
+5. Optional: in Settings, turn on "Track every new tab automatically". New tabs are tracked up to the tab limit; the next new tab shows a "Your list is full" card to finish or drop one, or leave it untracked. The × next to a tab in the popup stops tracking it without closing it.
 
 Permissions:
 - tabs: read the address and title of tracked tabs, find them again after a browser restart, and close or reopen them.
@@ -81,7 +82,7 @@ Permissions:
 - contextMenus: "Track this tab", "Mark this tab done" and "Open link as a tracked tab" in the right-click menu.
 - scripting: show the warning card on the page.
 - Host access to youtube.com: read the length of the video being watched.
-- <all_urls> is optional and only requested if the user turns on in-page warnings for all sites in Settings.
+- <all_urls> is optional and only requested when the user turns on, in Settings, either in-page warnings for all sites or "Track every new tab automatically" (so the "list is full" card can appear on the new tab). Declining still works; a notification is shown instead.
 
 No data is collected or sent anywhere. No account or sign-in is needed. Source code: https://github.com/rifkymol/focusen
 ```
