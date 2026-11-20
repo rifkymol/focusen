@@ -29,7 +29,7 @@ Open tabs are promises you made to yourself and never kept. Focusen gives each o
 
 HOW IT WORKS
 • Track a tab from the toolbar, the right-click menu, or Alt+Shift+K.
-• Pick a timer: 15 minutes to 1 day, or Auto. On Auto, a YouTube video gets its own length so it never closes mid-video, and any other page gets a day.
+• Pick a timer: 15 minutes to 1 day, or Auto. On Auto, a YouTube video gets its length plus 10 minutes, so it never closes mid-video, and any other page gets a day.
 • A few minutes before the deadline, a small card appears on the page (or a notification, if the tab is in the background) with Done and Keep +1h.
 • Hit Done when you've read or watched it. Finished tabs are logged, with a count for today and your best day this week.
 • Tabs that run out of time move to Expired and wait there for 7 days. Reopen one with a fresh timer, and a video picks up where you left off.
@@ -70,7 +70,7 @@ How to test:
 1. Open any web page, click the Focusen toolbar icon, choose a 15 min timer and click "Track this tab". The tab now shows a countdown badge.
 2. About 5 minutes before the deadline a card appears on the page with "Done" and "Keep +1h" (on non-YouTube sites a system notification is shown instead, unless in-page warnings are enabled in Settings).
 3. When the timer ends the tab closes and appears in the popup under "Expired", where "Reopen with new timer" brings it back once.
-4. On a YouTube video, the "Auto" timer uses the video's length.
+4. On a YouTube video, the "Auto" timer is the video's length plus 10 minutes.
 
 Permissions:
 - tabs: read the address and title of tracked tabs, find them again after a browser restart, and close or reopen them.

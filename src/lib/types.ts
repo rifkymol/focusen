@@ -1,4 +1,4 @@
-/** Timer choice: 'auto' (YouTube = video length, others = 1 day) or a number of minutes. */
+/** Timer choice: 'auto' (YouTube = video length + 10 min, others = 1 day) or a number of minutes. */
 export type TimerMode = 'auto' | number;
 
 export type SiteKind = 'video' | 'article' | 'feed' | 'news' | 'other';

@@ -238,7 +238,7 @@ function menuKeys(e: KeyboardEvent) {
 function renderHint() {
   const def = timerLabel(st!.settings.defaultMinutes, true);
   return h('div', { class: 'hint' }, icon('info', 12),
-    h('span', {}, `Auto: YouTube gets the video length (max 1 day). Others get ${def}.`));
+    h('span', {}, `Auto: YouTube gets the video length + 10 min (max 1 day). Others get ${def}.`));
 }
 
 function groupByDay(entries: LogEntry[], now: number) {

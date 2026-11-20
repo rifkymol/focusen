@@ -95,7 +95,7 @@ for (const [url, , mode] of ARTICLES) {
   await msg({ type: 'track', tabId: await tabIdOf(url), mode });
 }
 await sleep(1000);
-await patch('watch?v=cabin', { startedAt: { rel: -6 * MIN }, floor: { rel: 38 * MIN }, video: { videoId: 'cabin', duration: 2640, currentTime: 360 } });
+await patch('watch?v=cabin', { startedAt: { rel: -6 * MIN }, floor: { rel: 48 * MIN }, video: { videoId: 'cabin', duration: 2640, currentTime: 360 } });
 for (const [url, , , ago] of ARTICLES) await patch(url, { startedAt: { rel: -ago * MIN } });
 
 // History: Done and Expired.
@@ -178,7 +178,7 @@ const popupShot = (f) => `<img class="shot" src="${img(f)}" style="width:400px;h
 const warningShot = `<div class="shot" style="width:640px;height:360px;background:url(${img('warning.png')}) no-repeat;background-size:1067px 747px;background-position:-213px -185px"></div>`;
 
 const pages = [
-  ['1-deadline.png', theme.light, 'Give every tab a deadline.', 'Track up to six tabs you mean to finish. A YouTube video gets its own length; everything else gets a day.', popupShot('active-light.png')],
+  ['1-deadline.png', theme.light, 'Give every tab a deadline.', 'Track up to six tabs you mean to finish. A YouTube video gets its length plus 10 minutes; everything else gets a day.', popupShot('active-light.png')],
   ['2-warning.png', theme.light, 'A heads-up before anything closes.', 'A few minutes before time runs out, a small card offers Done or Keep +1h. A tab that’s still playing is never cut off.', warningShot],
   ['3-done.png', theme.light, 'Finishing feels good.', 'Every tab you finish is logged, with a count for today and your best day this week.', popupShot('done-light.png')],
   ['4-expired.png', theme.dark, 'Changed your mind? Bring it back once.', 'Closed tabs wait in Expired for a week. Reopen one with a fresh timer, and a video picks up where you left off.', popupShot('expired-dark.png')],

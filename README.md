@@ -26,7 +26,7 @@ It turns out most of those tabs didn't matter. The ones that did, you finish.
 ## How it works
 
 1. **Track a tab.** Use the popup, the right-click menu, or `Alt+Shift+K`. Choose a timer from 15 minutes to 1 day, or leave it on **Auto**.
-2. **Auto does the obvious thing.** A YouTube video gets as long as the video runs (it never closes mid-video). Any other page gets a day.
+2. **Auto does the obvious thing.** A YouTube video gets its length plus 10 minutes, so it never closes mid-video and you have time to finish up. Any other page gets a day.
 3. **You get a warning first.** A few minutes before the deadline, a small card appears on the page (or a notification, if the tab is in the background) with **Done** and **Keep +1h**.
 4. **Done is a small win.** Done tabs go into a log, with a "finished today" counter and your best day this week.
 5. **Expired isn't gone.** Tabs that run out of time wait under **Expired** for 7 days. You can reopen each one once, and a video resumes where you left off.

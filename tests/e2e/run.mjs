@@ -77,7 +77,7 @@ const patch = (part, fields) => ctl.evaluate(async ([part, fields]) => {
   await chrome.storage.local.set({ tracked: d.tracked });
 }, [part, fields]);
 
-// 1. YouTube: Auto timer becomes the video length.
+// 1. YouTube: Auto timer becomes the video length + 10 minutes.
 const yt = await ctx.newPage();
 await yt.goto('https://www.youtube.com/watch?v=cabin1');
 await yt.waitForFunction(() => document.querySelector('video')?.duration > 0);
@@ -88,7 +88,7 @@ await sleep(1500);
 let s = await msg({ type: 'state' });
 let ytRec = s.tracked.find((t) => t.tabId === ytTab);
 const left = s.deadlines[ytRec.id] - s.now;
-check('Auto deadline = video length (120 s), not in warning yet', Math.abs(left - 120_000) < 5000 && ytRec.state === 'active', `left ${Math.round(left / 1000)} s, duration ${ytRec.video?.duration}`);
+check('Auto deadline = video length + 10 min (720 s), not in warning yet', Math.abs(left - 720_000) < 5000 && ytRec.state === 'active', `left ${Math.round(left / 1000)} s, duration ${ytRec.video?.duration}`);
 
 // 2. Articles with explicit timers, then fill the list.
 const modes = [15, 60, 240, 1440, 30];

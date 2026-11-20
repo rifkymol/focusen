@@ -103,9 +103,9 @@ describe('keep / defer', () => {
 });
 
 describe('applyVideo', () => {
-  it('sets the floor to now + remaining', () => {
+  it('sets the floor to now + remaining + 10 min', () => {
     const t = applyVideo(yt(), { videoId: 'abc', duration: 3120, currentTime: 120 }, T0);
-    expect(t.floor).toBe(T0 + 3000 * SEC);
+    expect(t.floor).toBe(T0 + 3000 * SEC + 10 * MIN);
   });
   it('never lowers the floor for the same video (seek forward)', () => {
     const a = applyVideo(yt(), { videoId: 'abc', duration: 3600, currentTime: 0 }, T0);
@@ -115,14 +115,18 @@ describe('applyVideo', () => {
   it('extends the floor while paused and reported later', () => {
     const a = applyVideo(yt(), { videoId: 'abc', duration: 600, currentTime: 300 }, T0);
     const b = applyVideo(a, { videoId: 'abc', duration: 600, currentTime: 300 }, T0 + 20 * MIN);
-    expect(b.floor).toBe(T0 + 20 * MIN + 300 * SEC);
+    expect(b.floor).toBe(T0 + 20 * MIN + 300 * SEC + 10 * MIN);
   });
   it('a new video (autoplay) recomputes the floor but keeps the 24h cap from the original start', () => {
     const a = applyVideo(yt(), { videoId: 'abc', duration: 600 }, T0);
     const b = applyVideo(a, { videoId: 'xyz', duration: 60 }, T0 + 23.5 * HOUR);
-    expect(b.floor).toBe(T0 + 23.5 * HOUR + 60 * SEC);
+    expect(b.floor).toBe(T0 + 23.5 * HOUR + 60 * SEC + 10 * MIN);
     const c = applyVideo(b, { videoId: 'long', duration: 7200 }, T0 + 23.5 * HOUR);
     expect(computeDeadline(c, S)).toBe(T0 + DAY);
+  });
+  it('Auto on a 2-minute video: closes 12 minutes after tracking starts', () => {
+    const t = applyVideo(yt(), { videoId: 'short', duration: 120, currentTime: 0 }, T0);
+    expect(computeDeadline(t, S)).toBe(T0 + 12 * MIN);
   });
   it('live / Shorts / unknown length clears the floor for a new video', () => {
     const a = applyVideo(yt(), { videoId: 'abc', duration: 600 }, T0);

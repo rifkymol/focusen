@@ -14,6 +14,8 @@ export const DAY = 24 * HOUR;
 export const LATE_MS = 3 * MIN;
 /** At most this many "it's playing / fullscreen" deferrals before closing anyway. */
 export const MAX_DEFERRALS = 6;
+/** Extra time after a video's end, for pauses, comments and finishing up. */
+export const VIDEO_BUFFER = 10 * MIN;
 
 export function isYouTubeUrl(url: string): boolean {
   try {
@@ -26,7 +28,7 @@ export function isYouTubeUrl(url: string): boolean {
 
 /**
  * deadline = min(startedAt + 24h, max(userDeadline, videoFloor)), then any "Keep +1h".
- * Auto mode: YouTube with a known length gets the video length; everything else gets the default.
+ * Auto mode: YouTube with a known length gets the video length + 10 min; everything else gets the default.
  */
 export function computeDeadline(t: Tracked, s: Settings): number {
   const cap = t.startedAt + DAY;
@@ -116,7 +118,8 @@ export function keep(t0: Tracked, s: Settings, now: number): Tracked | null {
 }
 
 /**
- * Fold a YouTube report into the record. The video floor only moves later for the same
+ * Fold a YouTube report into the record. The floor is the video's end plus VIDEO_BUFFER.
+ * It only moves later for the same
  * video (pausing or seeking back never shortens it); a new video (autoplay, playlist)
  * recomputes it, while the 24h cap stays anchored to the tab's original start.
  */
@@ -129,7 +132,7 @@ export function applyVideo(t0: Tracked, v: VideoInfo, now: number): Tracked {
     return t;
   }
   const remaining = Math.max(0, v.duration - (v.currentTime ?? 0)) * SEC;
-  const candidate = now + remaining;
+  const candidate = now + remaining + VIDEO_BUFFER;
   t.floor = sameVideo && t.floor !== undefined ? Math.max(t.floor, candidate) : candidate;
   return t;
 }
