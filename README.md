@@ -49,7 +49,24 @@ Everything stays in your browser. Focusen has no servers, no analytics and no ac
 
 ## Install
 
-Focusen isn't in the extension stores yet. To run it now:
+Focusen isn't in the extension stores yet. You can install it from a download, no building needed.
+
+### Chrome or Edge
+
+1. Download `focusen-<version>-chrome.zip` from the [latest release](https://github.com/rifkymol/focusen/releases/latest).
+2. Unzip it into a folder you'll keep. The browser loads the extension from that folder, so deleting it removes Focusen.
+3. Open `chrome://extensions` (or `edge://extensions`) and turn on **Developer mode**.
+4. Click **Load unpacked** and select the unzipped folder.
+
+The browser may remind you at startup that a developer-mode extension is installed. That's expected for anything not installed from a store.
+
+To update, download the new zip, replace the folder's contents with it, and click the reload icon on Focusen's card in `chrome://extensions`. Your tracked tabs and history are kept.
+
+### Firefox
+
+Download `focusen-<version>-firefox.zip`, open `about:debugging` → **This Firefox** → **Load Temporary Add-on**, and pick the zip. Firefox removes temporary add-ons when it restarts, so for now this is for trying Focusen out.
+
+### From source
 
 ```bash
 git clone https://github.com/rifkymol/focusen.git
@@ -58,9 +75,7 @@ npm install
 npm run build
 ```
 
-Then open `chrome://extensions` (or `edge://extensions`), turn on **Developer mode**, click **Load unpacked** and select `.output/chrome-mv3`.
-
-For Firefox, run `npm run build:firefox` and load `.output/firefox-mv3/manifest.json` from `about:debugging` → **This Firefox** → **Load Temporary Add-on**.
+Then load `.output/chrome-mv3` with **Load unpacked** as above. For Firefox, run `npm run build:firefox` and load `.output/firefox-mv3/manifest.json` as a temporary add-on.
 
 ## Development
 
